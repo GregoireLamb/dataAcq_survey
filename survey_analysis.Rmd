@@ -18,7 +18,7 @@ suppressMessages(library(janitor))
 suppressMessages(library(lubridate))
 ```
 
-# Introducction 
+# I Introducction 
 
 ## topic
 
@@ -104,6 +104,47 @@ head(rawData)
 ## hypothesis 2
 
 ## hypothesis 3
+
+The 3rd hypothesis was *- Students think they spend too much time watching video content, regardless on the time they spend doing it.*. In other word, we are looking for the correlation between the time spend watching video and the answered provided for the question 2. Let's have first a deeper look to those columns. The following table show the answer repartition. 
+
+```{r}
+knitr::kable(table(rawData$answer_2),
+             caption = "Count of the answers for question 2",
+             col.names = c("answer","count"),
+             escape=FALSE)
+
+```
+
+A huge majority of the answers are between 4 and 5 (66%). This let us think that people have a generaly a bad opinion on the time they spend watching video content.  But how is it correlated to the real time they spend?  
+
+```{r}
+correlation <- cor(rawData$answer_1, rawData$answer_2)
+print(paste('The correlation between the time spended watching video content and the "look at themself" is ', correlation))
+```
+
+The correlation between the 2 column is 0.38, a strong correlation is close to 1 and a correlation between 0.3 and 0.5 is generally considered as low. So far we saw that a majority of the people think they spend too much time watching video content and this is weakly correlated to the real time. But the indicators are not straightforward. A more visual approach is to look at the distribution of the time regarding the "look at themself". This have been done in the following graph. 
+
+```{r}
+custom_palette <- colorRampPalette(c("green", "red"))
+
+plot <- ggplot(rawData, aes(x = answer_1, fill = as.factor(answer_2))) +
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = c("#ff0000", "#ffa700", "#fff400", "#a3ff00", "#2cba00")) + 
+  labs(fill = "answer_2") +
+  xlab("Time spended watching video (in min)") +
+  ggtitle("Density of the time spended watching video per look at themselves")
+
+plot
+
+```
+On this graph we can see that the density for answer 1 ("I don't think I spend too much time") has 2 spikes, one small (time < 50 min) and one around 200 mins. For the opposite answer (5, I think I should spend less time watching video content) we have a spike around 120 minutes and a second one around time > 320 minutes. For the other distribution they are pretty similar and centered around 120 minutes. 
+
+If our hypothesis were exact we should only have people with answer 4 or 5 and the same densities. 
+
+Having this and considering that the mean time spended watching video content is 128 minutes, we can say that the "look on themselves" people have is independent from the time spended watching video when it's not "extreme". The "extremes" values are less than 50 minutes (6 peoples) and more than 3 hours a day (2 peoples). 
+
+People look on themself is independent to the time they spend watching video and the fact to think that "I" should spend less time watching video is independent to the time spended doing it. 
+
 
 
 # Conclusion 
