@@ -3,7 +3,9 @@ title: "Assignment 2: Survey developpment"
 subtitle: "105.708 Data Acquisition and Survey Methods"
 author: "Group 3: Gjorgieva Aleksandra(), de Lambertye Grégoire(12202211),	Loos Annika Katharina()"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: 
+  pdf_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -57,7 +59,13 @@ print(unique(rawData[3]))
 As we see the format differs for the academic program answer. Where we have missing information we associate them by default to Data Science / MSc / TU Wien. To say we change "Data Science", "MSc Data Science", "MSc", "Data Science Msc", "	Data Science MSc." to "Data Science / MSc / TU Wien". 
 
 ```{r}
-row_index <- which(rawData$Academic.Program %in% c("Data Science", "	Data Science / MSc / TU Wien	", "MSc Data Science", "MSc", "Data Science Msc", "Data Science MSc."))
+row_index <- which(rawData$Academic.Program %in% c("Data Science", 
+                                                   "Data Science / MSc / TU Wien", 
+                                                   "MSc Data Science", 
+                                                   "Data Science / MSc / TU WIen",
+                                                   "MSc", 
+                                                   "Data Science Msc", 
+                                                   "Data Science MSc."))
 
 rawData[row_index, "Academic.Program"] <- "Data Science / MSc / TU Wien"
 ```
@@ -68,11 +76,26 @@ rawData[row_index, "Academic.Program"] <- "Data Science / MSc / TU Wien"
 print(unique(rawData[3]))
 ```
 
+```{r}
+rawData$answer_2 <- str_sub(rawData$answer_2, end = 2)
+rawData$answer_2 <- as.numeric(rawData$answer_2)
+```
 
 
-## The time question 
+```{r}
+for (i in 1:length(rawData$answer_1)){
+  if(rawData$answer_1[i] <= 5){
+    rawData$answer_1[i] <- rawData$answer_1[i] * 60
+  }
+}
+```
 
-treatment 
+
+
+```{r}
+head(rawData)
+```
+ 
 
 # Analysis 
 
