@@ -1,12 +1,19 @@
 ---
-title: "Survey_analysis"
+title: "Assignment 2: Survey developpment"
+subtitle: "105.708 Data Acquisition and Survey Methods"
 author: "Group 3: Gjorgieva Aleksandra(), de Lambertye Grégoire(12202211),	Loos Annika Katharina()"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(dplyr))
+suppressMessages(library('xml2'))
+suppressMessages(library(rvest))
+suppressMessages(library(tidyverse))
+suppressMessages(library(httr))
+suppressMessages(library(janitor))
+suppressMessages(library(lubridate))
 ```
 
 # Introducction 
@@ -26,12 +33,42 @@ blaba
 # Data exploration 
 
 ```{r}
-print("loading data")
+file_path <- "./data/group_3.csv"
+
+rawData <- read.csv(file_path, sep=";")
+# rename the column in a english friendly format 
+colnames(rawData)[4] <- "answer_1" 
+colnames(rawData)[5] <- "answer_2" 
+colnames(rawData)[6] <- "answer_3"
+
+print(head(rawData))
+print(paste("The data set dimensions are ", dim(rawData)[1], " x ", dim(rawData)[2]))
 ```
 
-## missing values 
+## Preprocessing 
 
-is there any ? 
+The colummns Gender and Age look nice and don't requier preprocessing.  
+
+## Academic programm
+
+```{r}
+print(unique(rawData[3]))
+```
+As we see the format differs for the academic program answer. Where we have missing information we associate them by default to Data Science / MSc / TU Wien. To say we change "Data Science", "MSc Data Science", "MSc", "Data Science Msc", "	Data Science MSc." to "Data Science / MSc / TU Wien". 
+
+```{r}
+row_index <- which(rawData$Academic.Program %in% c("Data Science", "	Data Science / MSc / TU Wien	", "MSc Data Science", "MSc", "Data Science Msc", "Data Science MSc."))
+
+rawData[row_index, "Academic.Program"] <- "Data Science / MSc / TU Wien"
+```
+
+
+```{r}
+
+print(unique(rawData[3]))
+```
+
+
 
 ## The time question 
 
