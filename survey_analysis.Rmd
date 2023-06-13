@@ -1,0 +1,50 @@
+---
+title: "Survey_analysis"
+author: "Group 3: Gjorgieva Aleksandra(), de Lambertye Grégoire(12202211),	Loos Annika Katharina()"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introducction 
+
+## topic
+
+blabla 
+
+## Hypothesis 
+
+blabla 
+
+## question 
+
+blaba 
+
+# Data exploration 
+
+```{r}
+print("loading data")
+```
+
+## missing values 
+
+is there any ? 
+
+## The time question 
+
+treatment 
+
+# Analysis 
+
+## hypothesis 1
+
+## hypothesis 2
+
+## hypothesis 3
+
+
+# Conclusion 
+
