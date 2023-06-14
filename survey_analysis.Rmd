@@ -107,44 +107,82 @@ head(rawData)
 
 The 3rd hypothesis was *- Students think they spend too much time watching video content, regardless on the time they spend doing it.*. In other word, we are looking for the correlation between the time spend watching video and the answered provided for the question 2. Let's have first a deeper look to those columns. The following table show the answer repartition. 
 
-```{r}
-knitr::kable(table(rawData$answer_2),
-             caption = "Count of the answers for question 2",
-             col.names = c("answer","count"),
-             escape=FALSE)
+```{r, out.width="50%"}
+pie( table(rawData$answer_2),
+    main = "Distribution of answers for question 2",
+    col = c("#ff0000", "#ffa700", "#fff400", "#a3ff00", "#2cba00"),
+    labels = paste0(names(table(rawData$answer_2)), ": ", table(rawData$answer_2)))
 
+legend("topright",
+       legend = names(table(rawData$answer_2)),
+       fill = c("#ff0000", "#ffa700", "#fff400", "#a3ff00", "#2cba00"),
+       cex = 0.8,
+       title = "Answers")
 ```
 
-A huge majority of the answers are between 4 and 5 (66%). This let us think that people have a generaly a bad opinion on the time they spend watching video content.  But how is it correlated to the real time they spend?  
+A majority of the answers are between 4 and 5 (66%). This let us think that people have a generaly a bad opinion on the time they spend watching video content.  But how is it correlated to the real time they spend?  
 
 ```{r}
 correlation <- cor(rawData$answer_1, rawData$answer_2)
-print(paste('The correlation between the time spended watching video content and the "look at themself" is ', correlation))
+print(paste('The correlation is ', correlation))
 ```
 
-The correlation between the 2 column is 0.38, a strong correlation is close to 1 and a correlation between 0.3 and 0.5 is generally considered as low. So far we saw that a majority of the people think they spend too much time watching video content and this is weakly correlated to the real time. But the indicators are not straightforward. A more visual approach is to look at the distribution of the time regarding the "look at themself". This have been done in the following graph. 
+The correlation between the 2 column is 0.38, a strong correlation is close to 1 and a correlation between 0.3 and 0.5 is generally considered as low. 
 
-```{r}
-custom_palette <- colorRampPalette(c("green", "red"))
+So far we saw that a majority of the people think they spend too much time watching video content and this is weakly correlated to the real time. We could accept our hyothis but the indicators are not straightforward. A more visual approach is to look at the distribution of the time regarding the "look at themself". This have been done in the following graph. 
 
+```{r, out.width="80%"}
 plot <- ggplot(rawData, aes(x = answer_1, fill = as.factor(answer_2))) +
   geom_density(alpha = 0.5) +
-  scale_fill_manual(values = c("#ff0000", "#ffa700", "#fff400", "#a3ff00", "#2cba00")) + 
+  scale_fill_manual(values = 
+                      c("#ff0000", "#ffa700", "#fff400", "#a3ff00", "#2cba00")) + 
   labs(fill = "answer_2") +
   xlab("Time spended watching video (in min)") +
   ggtitle("Density of the time spended watching video per look at themselves")
 
 plot
-
 ```
-On this graph we can see that the density for answer 1 ("I don't think I spend too much time") has 2 spikes, one small (time < 50 min) and one around 200 mins. For the opposite answer (5, I think I should spend less time watching video content) we have a spike around 120 minutes and a second one around time > 320 minutes. For the other distribution they are pretty similar and centered around 120 minutes. 
+On this graph we can see that the density for answer 1 ("I don't think I spend too much time") has 2 spikes, one small (time < 50 min) and one around 200 mins. For the opposite answer (5, I think I should spend less time watching video content) we have a spike around 120 minutes and a second one around time > 320 minutes. For the other distribution they are pretty similar and centered around 120 minutes. We have to take in account that some densities are computed on very few data (as for answer 3 where only 3 peoples selected this answer).
 
-If our hypothesis were exact we should only have people with answer 4 or 5 and the same densities. 
+If our hypothesis were exact we should only have people with answer 4 or 5 and the same densities for the answers. But here we clearly see that when people watch video less than 30 min per day they have a good opinion on it (1 or 2). On the opposite every person that watch video more than 300 minutes per day think he/she should watch less video. So **we reject our third hypothesis**.  
 
-Having this and considering that the mean time spended watching video content is 128 minutes, we can say that the "look on themselves" people have is independent from the time spended watching video when it's not "extreme". The "extremes" values are less than 50 minutes (6 peoples) and more than 3 hours a day (2 peoples). 
+Diving a bit deeper in the analysis made us consider the values without the "outliers", to say without the values under 30 minutes (5 peoples) and more than 300 minutes a day (2 peoples). We recomputed the correlation and redraw the previous plot. 
 
-People look on themself is independent to the time they spend watching video and the fact to think that "I" should spend less time watching video is independent to the time spended doing it. 
+```{r, echo = FALSE, figures-side, fig.show="hold", out.width="50%"}
+data <- rawData %>%
+  filter(answer_1 > 30 & answer_1 < 300)
 
+pie(table(data$answer_2),
+    main = "Distribution of answers for question 2 without extremes values",
+    col = c("#ff0000", "#ffa700", "#fff400", "#a3ff00", "#2cba00"),
+    labels = paste0(names(table(data$answer_2)), ": ", (table(data$answer_2))))
+
+legend("topright",
+       legend = names((table(data$answer_2))),
+       fill = c("#ff0000", "#ffa700", "#fff400", "#a3ff00", "#2cba00"),
+       cex = 0.8,
+       title = "Answers")
+
+correlation <- cor(data$answer_1, data$answer_2)
+print(paste('In the new dataset, the correlation is ', correlation))
+
+plot <- ggplot(data, aes(x = answer_1, fill = as.factor(answer_2))) +
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = c("#ff0000", "#ffa700", "#fff400", "#a3ff00", "#2cba00")) + 
+  labs(fill = "answer_2") +
+  xlab("Time spended watching video (in min)") +
+  ggtitle("Density of the time spended watching video per look at themselves 
+          without the extremes values")
+
+plot
+```
+
+
+Without the extreme values, the correlation drastically drops and is even negative that mean the more people watch video the better they feel with it.
+In this region people's look on themselves is independent to the time they spend watching video.
+
+In conclusion we can say that **we reject our hypothesis** but our idea seems valid outside of extreme values.
+We also have to stress out the fact that this survey have been done on few people only. 
 
 
 # Conclusion 
