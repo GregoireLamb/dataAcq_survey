@@ -32,14 +32,14 @@ o TV shows (series)
 o Movies
 o None of them
 
-## Hypothesis 
+## 1.2 Hypothesis 
 
 1. "On average students spend more than a day per week watching video content."
 2. "Student that identify themselves as female are more prone to consume longer video content than others."
 3. "Students think they spend too much time watching video content, regardless on the time they spend doing it."
 
 
-# Data exploration 
+# 1.4 Data exploration 
 
 ```{r}
 file_path <- "./data/group_3.csv"
@@ -54,15 +54,14 @@ print(head(rawData))
 print(paste("The data set dimensions are ", dim(rawData)[1], " x ", dim(rawData)[2]))
 ```
 
-## Preprocessing 
+## 1.5 Preprocessing 
 
 The colummns Gender and Age look nice and don't requier preprocessing.  
-
-## Academic programm
 
 ```{r}
 print(unique(rawData[3]))
 ```
+
 As we see the format differs for the academic program answer. Where we have missing information we associate them by default to Data Science / MSc / TU Wien. To say we change "Data Science", "MSc Data Science", "MSc", "Data Science Msc", "	Data Science MSc." to "Data Science / MSc / TU Wien". 
 
 ```{r}
@@ -104,9 +103,9 @@ head(rawData)
 ```
  
 
-# Analysis 
+## 2. hypothesis 1 -> Alexandra
 
-## hypothesis 1
+# 3. Hypothesis 2: "Student that identify themself as female are more prone to consume longer video content than others."
 
 “On average students spend more than a day per week watching video content”
 
@@ -148,7 +147,103 @@ Contrary to our hypothesis that students watch more than 24 hours of video conte
 
 ## hypothesis 2
 
-## hypothesis 3
+For the categorical features in the data set, one can use charts to visualize the distribution of each category. 
+
+## 3.1.1 Distribution of Gender
+
+In our study there where 22 males and 16 females taking part, shown in a bar and a pie chart.
+
+```{r}
+ggplot(rawData, aes(x = Gender, fill = Gender)) +
+  geom_bar(show.legend = TRUE) +
+  theme(axis.text.x = element_blank()) +
+  labs(x = "Gender", y = "Count") + 
+  ggtitle("Distribution of Genders") +
+  theme(plot.title = element_text(hjust = 0.5, vjust = -0.3)) +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5)
+```
+
+```{r}
+ggplot(rawData, aes(x = "", fill = Gender)) +
+  geom_bar(width = 1) +
+  coord_polar(theta = "y") +
+  labs(x = NULL, y = NULL, fill = "Gender") +
+  ggtitle("Distribution of Genders") +
+  theme_void() +
+  theme(plot.title = element_text(hjust = 0.5, vjust = -0.3)) + 
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -7)
+```
+
+## 3.1.2 Distribution of type of Video Content
+
+The third question of our study was "From what category do you consume the most video content from?", where the participants could choose between five categorical values: "Movies","TV shows (series)", "YouTube shorts – Tiktoks – Intsagram reels", "Youtube videos" or "None of them". In the following bar chart one can visually see the distriubtion between the five values with "Youtube Video" beeing the most popular category, because it was chosen 20 times. On the other hand only one person watches mainly movies.
+
+```{r}
+ggplot(rawData, aes(x = answer_3, fill = answer_3)) +
+  geom_bar(show.legend = TRUE) +
+  labs(x = "Video Content Type", y = "Count") +
+  theme(axis.text.x = element_blank()) +
+  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5) +
+  ggtitle("Distribution of Video Content Categories") +
+  theme(plot.title = element_text(hjust = 3, vjust = 1))
+```
+
+## 3.2 Descriptive Inference:
+
+## 3.2.1 Average watching time
+
+In general one can see by this table that females taking part in our study in average watch less video content than male participants.
+
+```{r}
+summary_stats <- rawData %>%
+  group_by(Gender) %>%
+  summarize(average_duration = mean(answer_1),
+            median_duration = median(answer_1))
+
+summary_table <- data.frame(Gender = summary_stats$Gender,
+                            Average_Duration = summary_stats$average_duration,
+                            Median_Duration = summary_stats$median_duration)
+
+summary_table
+```
+
+```{r}
+rawData[, "Gender"] <- ifelse(rawData[, "Gender"]=="male",1,0)
+rawData$answer_3 <- factor(rawData$answer_3, levels = c( "Movies", "None of them", "TV shows (series)","YouTube shorts – Tiktoks – Intsagram reels", "YouTube video"))
+rawData$answer_3 <- as.integer(rawData$answer_3)
+rawData$Gender <- as.numeric(rawData$Gender)
+rawData
+```
+
+## 3.2.1 Distribution of Video Content Categories for each Gender
+
+In the following chart one can see that males watch more video content of the category "YouTube video" than females. The rest is fairly balanced.
+
+```{r}
+Genders <- factor(rawData$Gender, labels = c("female", "male"))
+
+ggplot(rawData, aes(x=factor(answer_3),fill = Genders)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Video Content Type", y = "Count") +
+  ggtitle("Distribution of Video Content Categories for each Gender") +
+  theme(plot.title = element_text(hjust = 0.5, vjust = -0.3)) +
+  scale_x_discrete(labels = c("Movies", "None", "TV shows", "Reels / Shorts", "YouTube video"))
+```
+
+
+## 3.3 Analytic Inference::
+
+```{r}
+contingency_table <- table(rawData$Gender, rawData$answer_3)
+contingency_table
+
+chi_squared_test <- chisq.test(contingency_table)
+chi_squared_test
+```
+
+The p-value is a measure of the statistical significance of the association. In this case, the p-value is 0.003273. A p-value less than the chosen significance level (e.g., 0.05) indicates that the association between gender and the categorical value in the fifth column is statistically significant. One can see that more males watch Youtube Videos which can be put into a category of longer content and more females watch video content of the category "YouTube shorts – Tiktoks – Intsagram reels". Therefore the hypothesis of "Student that identify themself as female are more prone to consume longer video content than others" can be rejected.
+
+# 3 Hypothesis 3
 
 The 3rd hypothesis was *- Students think they spend too much time watching video content, regardless on the time they spend doing it.*. In other word, we are looking for the correlation between the time spend watching video and the answered provided for the question 2. Let's have first a deeper look to those columns. The following table show the answer repartition. 
 
@@ -231,4 +326,3 @@ We also have to stress out the fact that this survey have been done on few peopl
 
 
 # Conclusion 
-
