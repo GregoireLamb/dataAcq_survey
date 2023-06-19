@@ -19,18 +19,25 @@ suppressMessages(library(lubridate))
 ```
 
 # I Introducction 
+Our survey was designed to delve into students' daily habits regarding their consumption of content from a variety of sources. We were primarily interested in understanding the amount of time they dedicate to watching videos, the types of content they gravitate towards, whether it be short, fast-paced videos or longer ones that require more attention, and finally, their personal opinions on how much time they should devote to this activity. Given that we were limited to three questions, we believed these to be the most appropriate to gain insights into these aspects.
 
-## topic
-
-blabla 
+## Questions 
+- How many hours do you spend per day watching video content?
+- Quantitative: (integer) number in minutes
+- Do you think you spend too much time watching video content?
+- Ordinal: scale from 1(not at all) to 5(I think I should send way less time) - From what category do you consume the most video content from?
+- Categories:
+o YouTube shorts – Tiktoks – Intsagram reels o YouTube video
+o TV shows (series)
+o Movies
+o None of them
 
 ## Hypothesis 
 
-blabla 
+1. "On average students spend more than a day per week watching video content."
+2. "Student that identify themselves as female are more prone to consume longer video content than others."
+3. "Students think they spend too much time watching video content, regardless on the time they spend doing it."
 
-## question 
-
-blaba 
 
 # Data exploration 
 
@@ -100,6 +107,44 @@ head(rawData)
 # Analysis 
 
 ## hypothesis 1
+
+“On average students spend more than a day per week watching video content”
+
+In order to answer to test this hypothesis it will be necessary to look at that mean of the sample as time spent watching video content and further present it in an hourly and weekly context. 
+We will primarily look and plot the distribution of the answers to see how if there are some outliers which will need to be handled. There were no extremes that needed altering. However, we hod some answers in hours and some in minutes and we have processed the data above to have only minutes in our answers. 
+In the graph we can see that out of 38 people more than 15 answered around 100-150 minutes a day and the red line represent the mean of our sample.
+```{r}
+# Define the histogram
+p1 <- ggplot(rawData, aes(x = answer_1)) +
+  geom_histogram(binwidth = 60, fill = "skyblue", color = "black", alpha = 0.7) +
+  geom_vline(aes(xintercept = mean(answer_1, na.rm = TRUE)), 
+             color = "red", linetype = "dashed", size = 1) +
+  labs(title = "Distribution of Video Watching Time in Minutes per Day", 
+       x = "Video Watching Time (minutes)", y = "Frequency") +
+  theme_minimal()
+
+# Display the histogram
+print(p1)
+```
+```{r}
+mean_answer1 <- mean(rawData$answer_1, na.rm = TRUE)
+print(mean_answer1)
+
+```
+Mean in minutes per day.
+
+
+```{r}
+rawData <- rawData %>%
+  mutate(answer_1_weekly = answer_1 * 7 / 60) # converting from minutes to hours
+
+ttest <- t.test(rawData$answer_1_weekly, mu = 24, alternative = "greater")
+ttest
+```
+Here we have tested our hypothesis using t-test.The parameter mu is set to 24, which is the value that the sample mean is being compared to. The parameter alternative = "greater" specifies the alternative hypothesis, which is that the true mean is greater than mu. 
+
+The results of our t-test show a t-value of -6.1217 with 37 degrees of freedom, and the p-value is 1. The null hypothesis is that the mean weekly video watching time is equal to 24 hours. A p-value of 1 means that if the null hypothesis were true, we would expect to see data like our observed data all the time. 
+Contrary to our hypothesis that students watch more than 24 hours of video content per week, the data does not support this. In fact, our sample's mean weekly watching time is about 14.94 hours, which is less than 24 hours.
 
 ## hypothesis 2
 
