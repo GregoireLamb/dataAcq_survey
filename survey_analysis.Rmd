@@ -18,10 +18,10 @@ suppressMessages(library(janitor))
 suppressMessages(library(lubridate))
 ```
 
-# I Introducction 
+# 1 Introducction 
 Our survey was designed to delve into students' daily habits regarding their consumption of content from a variety of sources. We were primarily interested in understanding the amount of time they dedicate to watching videos, the types of content they gravitate towards, whether it be short, fast-paced videos or longer ones that require more attention, and finally, their personal opinions on how much time they should devote to this activity. Given that we were limited to three questions, we believed these to be the most appropriate to gain insights into these aspects.
 
-## Questions 
+## 1.1 Questions 
 - How many hours do you spend per day watching video content?
 - Quantitative: (integer) number in minutes
 - Do you think you spend too much time watching video content?
@@ -39,7 +39,7 @@ o None of them
 3. "Students think they spend too much time watching video content, regardless on the time they spend doing it."
 
 
-# 1.4 Data exploration 
+## 1.3 Data exploration 
 
 ```{r}
 file_path <- "./data/group_3.csv"
@@ -50,13 +50,12 @@ colnames(rawData)[4] <- "answer_1"
 colnames(rawData)[5] <- "answer_2" 
 colnames(rawData)[6] <- "answer_3"
 
-print(head(rawData))
 print(paste("The data set dimensions are ", dim(rawData)[1], " x ", dim(rawData)[2]))
 ```
 
-## 1.5 Preprocessing 
+### 1.3.1 Preprocessing 
 
-The colummns Gender and Age look nice and don't requier preprocessing.  
+The colummns Gender and Age look nice and don't require preprocessing. We had to clean the data for the for the academic programs and for the answer 1.
 
 ```{r}
 print(unique(rawData[3]))
@@ -74,10 +73,6 @@ row_index <- which(rawData$Academic.Program %in% c("Data Science",
                                                    "Data Science MSc."))
 
 rawData[row_index, "Academic.Program"] <- "Data Science / MSc / TU Wien"
-```
-
-
-```{r}
 
 print(unique(rawData[3]))
 ```
@@ -85,35 +80,28 @@ print(unique(rawData[3]))
 ```{r}
 rawData$answer_2 <- str_sub(rawData$answer_2, end = 2)
 rawData$answer_2 <- as.numeric(rawData$answer_2)
-```
 
-
-```{r}
 for (i in 1:length(rawData$answer_1)){
   if(rawData$answer_1[i] <= 5){
     rawData$answer_1[i] <- rawData$answer_1[i] * 60
   }
 }
-```
 
-
-
-```{r}
-head(rawData)
+knitr::kable(rawData[1:3,],
+             caption = "Dataset cleaned")
 ```
  
+# 2 Hypothesis 
 
-## 2. hypothesis 1 -> Alexandra
+## 2.1 hypothesis 1 
 
-# 3. Hypothesis 2: "Student that identify themself as female are more prone to consume longer video content than others."
 
 “On average students spend more than a day per week watching video content”
 
 In order to answer to test this hypothesis it will be necessary to look at that mean of the sample as time spent watching video content and further present it in an hourly and weekly context. 
 We will primarily look and plot the distribution of the answers to see how if there are some outliers which will need to be handled. There were no extremes that needed altering. However, we hod some answers in hours and some in minutes and we have processed the data above to have only minutes in our answers. 
 In the graph we can see that out of 38 people more than 15 answered around 100-150 minutes a day and the red line represent the mean of our sample.
-```{r}
-# Define the histogram
+```{r, fig.show="hold", fig.align = 'center', out.width="80%", warning=FALSE}
 p1 <- ggplot(rawData, aes(x = answer_1)) +
   geom_histogram(binwidth = 60, fill = "skyblue", color = "black", alpha = 0.7) +
   geom_vline(aes(xintercept = mean(answer_1, na.rm = TRUE)), 
@@ -122,15 +110,13 @@ p1 <- ggplot(rawData, aes(x = answer_1)) +
        x = "Video Watching Time (minutes)", y = "Frequency") +
   theme_minimal()
 
-# Display the histogram
 print(p1)
 ```
 ```{r}
 mean_answer1 <- mean(rawData$answer_1, na.rm = TRUE)
-print(mean_answer1)
+print(paste(paste("The mean time spend watching video content per day is ", mean_answer1), " in minutes."))
 
 ```
-Mean in minutes per day.
 
 
 ```{r}
@@ -145,25 +131,15 @@ Here we have tested our hypothesis using t-test.The parameter mu is set to 24, w
 The results of our t-test show a t-value of -6.1217 with 37 degrees of freedom, and the p-value is 1. The null hypothesis is that the mean weekly video watching time is equal to 24 hours. A p-value of 1 means that if the null hypothesis were true, we would expect to see data like our observed data all the time. 
 Contrary to our hypothesis that students watch more than 24 hours of video content per week, the data does not support this. In fact, our sample's mean weekly watching time is about 14.94 hours, which is less than 24 hours.
 
-## hypothesis 2
+## 2.2 Hypothesis 2
 
-For the categorical features in the data set, one can use charts to visualize the distribution of each category. 
+Our second hypothesis was "Student that identify themself as female are more prone to consume longer video content than others.". For the categorical features in the data set, one can use charts to visualize the distribution of each category. 
 
-## 3.1.1 Distribution of Gender
+### 2.2.1 Distribution of Gender
 
-In our study there where 22 males and 16 females taking part, shown in a bar and a pie chart.
+In our study there where 22 males and 16 females taking part, shown in a pie chart.
 
-```{r}
-ggplot(rawData, aes(x = Gender, fill = Gender)) +
-  geom_bar(show.legend = TRUE) +
-  theme(axis.text.x = element_blank()) +
-  labs(x = "Gender", y = "Count") + 
-  ggtitle("Distribution of Genders") +
-  theme(plot.title = element_text(hjust = 0.5, vjust = -0.3)) +
-  geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5)
-```
-
-```{r}
+```{r, fig.show="hold", out.width="50%", fig.align = 'center'}
 ggplot(rawData, aes(x = "", fill = Gender)) +
   geom_bar(width = 1) +
   coord_polar(theta = "y") +
@@ -174,23 +150,20 @@ ggplot(rawData, aes(x = "", fill = Gender)) +
   geom_text(stat = "count", aes(label = after_stat(count)), vjust = -7)
 ```
 
-## 3.1.2 Distribution of type of Video Content
+### 2.2.2 Distribution of type of Video Content
 
 The third question of our study was "From what category do you consume the most video content from?", where the participants could choose between five categorical values: "Movies","TV shows (series)", "YouTube shorts – Tiktoks – Intsagram reels", "Youtube videos" or "None of them". In the following bar chart one can visually see the distriubtion between the five values with "Youtube Video" beeing the most popular category, because it was chosen 20 times. On the other hand only one person watches mainly movies.
 
-```{r}
+```{r, fig.show="hold", out.width="80%", fig.align = 'center'}
 ggplot(rawData, aes(x = answer_3, fill = answer_3)) +
   geom_bar(show.legend = TRUE) +
   labs(x = "Video Content Type", y = "Count") +
   theme(axis.text.x = element_blank()) +
   geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5) +
-  ggtitle("Distribution of Video Content Categories") +
-  theme(plot.title = element_text(hjust = 3, vjust = 1))
+  ggtitle("Distribution of Video Content Categories") 
 ```
 
-## 3.2 Descriptive Inference:
-
-## 3.2.1 Average watching time
+### 2.2.3 Descriptive Inference
 
 In general one can see by this table that females taking part in our study in average watch less video content than male participants.
 
@@ -204,22 +177,22 @@ summary_table <- data.frame(Gender = summary_stats$Gender,
                             Average_Duration = summary_stats$average_duration,
                             Median_Duration = summary_stats$median_duration)
 
-summary_table
+knitr::kable(summary_table,
+             caption = "Average and meadian daily consuption time of video")
 ```
 
 ```{r}
 rawData[, "Gender"] <- ifelse(rawData[, "Gender"]=="male",1,0)
-rawData$answer_3 <- factor(rawData$answer_3, levels = c( "Movies", "None of them", "TV shows (series)","YouTube shorts – Tiktoks – Intsagram reels", "YouTube video"))
+rawData$answer_3 <- factor(rawData$answer_3, levels = c( "Movies", "None of them", "TV shows (series)",
+                                                         "YouTube shorts – Tiktoks – Intsagram reels", "YouTube video"))
 rawData$answer_3 <- as.integer(rawData$answer_3)
 rawData$Gender <- as.numeric(rawData$Gender)
-rawData
 ```
 
-## 3.2.1 Distribution of Video Content Categories for each Gender
 
 In the following chart one can see that males watch more video content of the category "YouTube video" than females. The rest is fairly balanced.
 
-```{r}
+```{r,  fig.align = 'center', fig.show="hold", out.width="80%"}
 Genders <- factor(rawData$Gender, labels = c("female", "male"))
 
 ggplot(rawData, aes(x=factor(answer_3),fill = Genders)) +
@@ -231,11 +204,10 @@ ggplot(rawData, aes(x=factor(answer_3),fill = Genders)) +
 ```
 
 
-## 3.3 Analytic Inference::
+### 2.2.4 Analytic Inference
 
-```{r}
+```{r, warning=FALSE}
 contingency_table <- table(rawData$Gender, rawData$answer_3)
-contingency_table
 
 chi_squared_test <- chisq.test(contingency_table)
 chi_squared_test
@@ -243,11 +215,11 @@ chi_squared_test
 
 The p-value is a measure of the statistical significance of the association. In this case, the p-value is 0.003273. A p-value less than the chosen significance level (e.g., 0.05) indicates that the association between gender and the categorical value in the fifth column is statistically significant. One can see that more males watch Youtube Videos which can be put into a category of longer content and more females watch video content of the category "YouTube shorts – Tiktoks – Intsagram reels". Therefore the hypothesis of "Student that identify themself as female are more prone to consume longer video content than others" can be rejected.
 
-# 3 Hypothesis 3
+## 2.3 Hypothesis 3
 
 The 3rd hypothesis was *- Students think they spend too much time watching video content, regardless on the time they spend doing it.*. In other word, we are looking for the correlation between the time spend watching video and the answered provided for the question 2. Let's have first a deeper look to those columns. The following table show the answer repartition. 
 
-```{r, out.width="50%"}
+```{r,fig.align = 'center', out.width="50%"}
 pie( table(rawData$answer_2),
     main = "Distribution of answers for question 2",
     col = c("#ff0000", "#ffa700", "#fff400", "#a3ff00", "#2cba00"),
@@ -271,7 +243,7 @@ The correlation between the 2 column is 0.38, a strong correlation is close to 1
 
 So far we saw that a majority of the people think they spend too much time watching video content and this is weakly correlated to the real time. We could accept our hyothis but the indicators are not straightforward. A more visual approach is to look at the distribution of the time regarding the "look at themself". This have been done in the following graph. 
 
-```{r, out.width="80%"}
+```{r, out.width="80%", fig.align = 'center'}
 plot <- ggplot(rawData, aes(x = answer_1, fill = as.factor(answer_2))) +
   geom_density(alpha = 0.5) +
   scale_fill_manual(values = 
@@ -288,7 +260,7 @@ If our hypothesis were exact we should only have people with answer 4 or 5 and t
 
 Diving a bit deeper in the analysis made us consider the values without the "outliers", to say without the values under 30 minutes (5 peoples) and more than 300 minutes a day (2 peoples). We recomputed the correlation and redraw the previous plot. 
 
-```{r, echo = FALSE, figures-side, fig.show="hold", out.width="50%"}
+```{r, echo = FALSE, fig.show="hold", out.width="70%", fig.align = 'center'}
 data <- rawData %>%
   filter(answer_1 > 30 & answer_1 < 300)
 
@@ -325,4 +297,7 @@ In conclusion we can say that **we reject our hypothesis** but our idea seems va
 We also have to stress out the fact that this survey have been done on few people only. 
 
 
-# Conclusion 
+# 3 Conclusion 
+
+Thanks to our survey questions we could answer our hypothesis. We could gain a lot of insights ont the participant's video content consumption habits. Based on the collected data We reject all our hypothesis 
+
